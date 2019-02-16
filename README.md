@@ -9,4 +9,4 @@
  
 <h1>
  
-[Live Demo](https://giovannipasq.github.io/Graph_Algorithms/index.html)
+[Live Demo](https://giovannipasq.github.io/Graphs_Algorithms/index.html)
