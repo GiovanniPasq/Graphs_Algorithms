@@ -1,0 +1,704 @@
+<!doctype html>
+<html>
+<head>
+    <title>Minimum spanning tree</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style type="text/css">
+        html, body {
+            font: 11pt arial;
+        }
+
+        h1 {
+            font-size: 150%;
+            margin: 5px 0;
+        }
+
+        h2 {
+            font-size: 100%;
+            margin: 5px 0;
+        }
+
+        table.view {
+            width: 100%;
+        }
+
+        table td {
+            vertical-align: top;
+        }
+
+        table table {
+            background-color: #f5f5f5;
+            border: 1px solid #e5e5e5;
+        }
+
+        table table td {
+            vertical-align: middle;
+        }
+
+        input[type=text], pre {
+            border: 1px solid lightgray;
+        }
+
+        pre {
+            margin: 0;
+            padding: 5px;
+            font-size: 10pt;
+        }
+
+        #network {
+            width: 100%;
+            height: 400px;
+            border: 1px solid lightgray;
+        }
+    </style>
+
+    <script type="text/javascript" src="./dist/vis.js"></script>
+    <link href="./dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript">
+        var nodes, edges, network;
+
+        // convenience method to stringify a JSON object
+        function toJSON(obj) {
+            return JSON.stringify(obj, null, 4);
+        }
+
+        function addNode() {
+            try {
+                nodes.add({
+                    id: document.getElementById('node-id').value,
+                    label: document.getElementById('node-label').value
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        function updateNode() {
+            try {
+                nodes.update({
+                    id: document.getElementById('node-id').value,
+                    label: document.getElementById('node-label').value
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function removeNode() {
+            try {
+                nodes.remove({id: document.getElementById('node-id').value});
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        function addEdge() {
+            try {
+                edges.add({
+                    id: document.getElementById('edge-id').value,
+                    from: document.getElementById('edge-from').value,
+                    to: document.getElementById('edge-to').value,
+                    label: document.getElementById("weight-to").value,
+                    weight: document.getElementById("weight-to").value,
+                    width:4,
+                    color:{color:"#74b9ff"}
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function updateEdge() {
+            try {
+                edges.update({
+                    id: document.getElementById('edge-id').value,
+                    from: document.getElementById('edge-from').value,
+                    to: document.getElementById('edge-to').value,
+                    label: document.getElementById("weight-to").value,
+                    weight: document.getElementById("weight-to").value,
+                    color:{color:"#74b9ff"}
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function removeEdge() {
+            try {
+                edges.remove({id: document.getElementById('edge-id').value});
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function draw() {
+            // create an array with nodes
+            nodes = new vis.DataSet();
+            nodes.on('*', function () {
+                document.getElementById('nodes').innerHTML = JSON.stringify(nodes.get(), null, 4);
+            });
+            nodes.add([
+                {id: '1', label: 'A1'},
+                {id: '2', label: 'B2'},
+                {id: '3', label: 'C3'},
+                {id: '4', label: 'D4'},
+                {id: '5', label: 'E5'},
+                {id: '6', label: 'F6'},
+                {id: '7', label: 'G7'},
+                {id: '8', label: 'H8'},
+                {id: '9', label: 'I9'},
+                {id: '10', label: 'K10'}
+            ]);
+
+            // create an array with edges
+            edges = new vis.DataSet();
+            edges.on('*', function () {
+                var edgesObj=edges.get()
+                var edgesToDysplay=[]
+                for(var i=0;i<edgesObj.length;i++){
+                    edgesToDysplay.push({"id":edgesObj[i].id,"from":from=edgesObj[i].from,"to":edgesObj[i].to,"weight":parseInt(edgesObj[i].weight,10)})
+                }
+                document.getElementById('edges').innerHTML = JSON.stringify(edgesToDysplay, null, 4);
+            });
+            edges.add([
+                {id: '1', from: '1', to: '5',label:"4",weight:"4",width:4,color:{color:"#74b9ff"}},
+                {id: '2', from: '1', to: '2',label:"4",weight:"4",width:4,color:{color:"#74b9ff"}},
+                {id: '3', from: '2', to: '5',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
+                {id: '4', from: '2', to: '3',label:"4",weight:"4",width:4,color:{color:"#74b9ff"}},
+                {id: '5', from: '2', to: '9',label:"10",weight:"10",width:4,color:{color:"#74b9ff"}},
+                {id: '6', from: '3', to: '5',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
+                {id: '7', from: '3', to: '4',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
+                {id: '8', from: '4', to: '5',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
+                {id: '9', from: '4', to: '6',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
+                {id: '10', from: '5', to: '9',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
+                {id: '11', from: '5', to: '6',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
+                {id: '12', from: '5', to: '8',label:"6",weight:"6",width:4,color:{color:"#74b9ff"}},
+                {id: '13', from: '6', to: '8',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
+                {id: '14', from: '6', to: '7',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
+                {id: '15', from: '6', to: '9',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
+                {id: '16', from: '7', to: '8',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
+                {id: '17', from: '8', to: '9',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
+                {id: '18', from: '9', to: '10',label:"4",weight:"4",width:4,color:{color:"#74b9ff"}}
+            ]);
+
+            // create a network
+            var container = document.getElementById('network');
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                    physics: {
+                    stabilization: true,
+                    solver: "forceAtlas2Based",
+                    enabled: true,
+                    },
+                    layout:{
+                        randomSeed: 4
+                    }
+            };
+            network = new vis.Network(container, data, options);
+            
+        }
+        //flag for step by step
+        var flag=0
+        var tempVertices=[]
+        var mst=[]
+        var edgesSort=[]
+
+        function kruskal(){
+            tempVertices=[]
+            for(var ver in nodes._data){
+                tempVertices.push([nodes._data[ver].id,nodes._data[ver].id])
+            }
+            //console.log(tempVertices)
+            mst = []
+            edgesSort =[]
+            for (var weight in edges._data){
+                edgesSort.push([weight,edges._data[weight].from,edges._data[weight].to,parseInt(edges._data[weight].weight,10)]);
+            }
+            edgesSort.sort(function(a, b){
+                return a[3]-b[3];
+            });
+//reset color edges
+            for(var i =0;i<edgesSort.length;i++){
+                try {
+                    edges.update({
+                        id: edgesSort[i][0],
+                        color:{color:"#74b9ff"}
+                    });
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+//UNION FIND
+            for(var i=0;i<edgesSort.length;i++){
+                var ind1;
+                var ind2;
+                var x,y;
+                for(var j=0;j<tempVertices.length;j++){
+                    if(tempVertices[j][0]==edgesSort[i][1]){
+                        ind1=tempVertices[j][1];
+                    }
+                    if(tempVertices[j][0]==edgesSort[i][2]){
+                        ind2=tempVertices[j][1]
+                    }
+                }
+                
+                if(ind1!=ind2){
+                    for(var k=0;k<tempVertices.length;k++){
+                        if(tempVertices[k][1]==ind1){
+                            tempVertices[k][1]=ind2
+                        }
+                    }
+                    mst.push(edgesSort[i])
+                }
+            }
+//END UNION FIND
+            //console.log("MST: ",mst)
+            if(flag==0){
+                for(var i =0;i<mst.length;i++){
+                    try {
+                        edges.update({
+                            id: mst[i][0],
+                            color:{color:"#e74c3c"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            }
+        }
+        var count=0
+        function mycheck(){
+            var checkbox= document.getElementById("check");
+            var back= document.getElementById("back");
+            var next= document.getElementById("next");
+            var checkboxPrim=document.getElementById("checkPrim");
+            var nextPrim=document.getElementById("nextPrim");
+            var backPrim=document.getElementById("backPrim");
+            kruskal()
+                for(var i =0;i<mst.length;i++){
+                    try {
+                        edges.update({
+                            id: mst[i][0],
+                            color:{color:"#74b9ff"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            if(checkbox.checked==true){
+                checkboxPrim.checked=false
+                nextPrim.style.display="none"
+                backPrim.style.display="none"
+                flag=1
+                next.style.display="inline"
+                back.style.display="inline"
+            }
+            else {
+                flag =0
+                next.style.display="none"
+                back.style.display="none"
+            }
+            count=0
+        }
+        
+        function back(){
+            if(count>=1){
+                console.log("mst ",mst[count-1][0])
+                try{
+                    edges.update({
+                            id: mst[count-1][0],
+                            color:{color:"#74b9ff"}
+                        });
+                }catch (err) {
+                        alert(err);
+                }
+                
+                count-=1;
+            }
+        }
+        function next(){
+           // var size = Object.keys(nodes._data).length;
+           if(count<mst.length){   
+                try{
+                    edges.update({
+                            id: mst[count][0],
+                            color:{color:"#e74c3c"}
+                        });
+                }catch (err) {
+                        alert(err);
+                }
+            count+=1;
+           }
+        }
+
+    
+    function prim(){
+            var primNodes=[]
+            tempVertices=[]
+            mst =[]
+            var starting_node= document.getElementById("starting-node").value
+            for(var ver in nodes._data){
+                tempVertices.push([nodes._data[ver].id,nodes._data[ver].id])
+            }
+            edgesSort =[]
+            for (var weight in edges._data){
+                edgesSort.push([weight,edges._data[weight].from,edges._data[weight].to,parseInt(edges._data[weight].weight,10)]);
+            }
+            edgesSort.sort(function(a, b){
+                return a[3]-b[3];
+            });
+            //reset color
+            for(var i =0;i<edgesSort.length;i++){
+                try {
+                    edges.update({
+                        id: edgesSort[i][0],
+                        color:{color:"#74b9ff"}
+                    });
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+            
+            primNodes.push(starting_node)
+            for(var i=0;i<edgesSort.length;i++){
+                if(starting_node==edgesSort[i][1]){
+                    mst.push(edgesSort[i])
+                    primNodes.push(edgesSort[i][2])
+                    break;
+                }else if(starting_node==edgesSort[i][2]){
+                    mst.push(edgesSort[i])
+                    primNodes.push(edgesSort[i][1])
+                    break;
+                }
+            }
+            //shuffle vertices
+            for(var j=0;j<edgesSort.length-2;j++){
+                if(edgesSort[j][3]==edgesSort[j+1][3]){
+                    var t1 = edgesSort[j]
+                    edgesSort[j]=edgesSort[j+1]
+                    edgesSort[j+1]=t1
+                    
+                }
+            }
+            //end shuffle 
+            //start algorithm
+            for(var j=0;j<tempVertices.length-1;j++){
+                for(var i=0;i<edgesSort.length;i++){
+                    if(!primNodes.includes(edgesSort[i][1]) && primNodes.includes(edgesSort[i][2])){
+                        primNodes.push(edgesSort[i][1])
+                        mst.push(edgesSort[i])
+                        break;
+
+                    }else if(!primNodes.includes(edgesSort[i][2]) && primNodes.includes(edgesSort[i][1])){
+                        primNodes.push(edgesSort[i][2])
+                        mst.push(edgesSort[i])
+                        break;
+                    }
+                }
+            }
+            //console.log(edgesSort,primNodes,mst)
+            for(var i =0;i<mst.length;i++){
+                    try {
+                        edges.update({
+                            id: mst[i][0],
+                            color:{color:"#e74c3c"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+            }
+    }
+
+     function checkPrim(){
+            var checkbox= document.getElementById("checkPrim");
+            var back= document.getElementById("backPrim");
+            var next= document.getElementById("nextPrim");
+            var checkboxKruskal= document.getElementById("check");
+            var nextKruskal=document.getElementById("next");
+            var backKruskal=document.getElementById("back");
+            prim()
+                for(var i =0;i<mst.length;i++){
+                    try {
+                        edges.update({
+                            id: mst[i][0],
+                            color:{color:"#74b9ff"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            if(checkbox.checked==true){
+                checkboxKruskal.checked=false
+                nextKruskal.style.display="none"
+                backKruskal.style.display="none"
+                flag=1
+                next.style.display="inline"
+                back.style.display="inline"
+            }
+            else {
+                flag =0
+                next.style.display="none"
+                back.style.display="none"
+            }
+            count=0
+        }
+        
+        function backPrim(){
+            if(count>=1){
+                console.log("mst ",mst[count-1][0])
+                try{
+                    edges.update({
+                            id: mst[count-1][0],
+                            color:{color:"#74b9ff"}
+                        });
+                }catch (err) {
+                        alert(err);
+                }
+                
+                count-=1;
+            }
+        }
+        function nextPrim(){
+           // var size = Object.keys(nodes._data).length;
+           if(count<mst.length){   
+                try{
+                    edges.update({
+                            id: mst[count][0],
+                            color:{color:"#e74c3c"}
+                        });
+                }catch (err) {
+                        alert(err);
+                }
+            count+=1;
+           }
+    }
+    function reset_color(){
+            var edges_length=edges.length
+            console.log(edges._data)
+            for(var i=1;i<=edges_length;i++){
+                try {
+                    edges.update({
+                        id: edges._data[i].id,
+                        color:{color:"#74b9ff"}
+                    });
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+            count =0
+        }
+        function new_empty_graph(){
+            var nodes_length=nodes.length
+            for(var i=1;i<=nodes_length;i++){
+                try {
+                    nodes.remove({id: nodes._data[i].id});
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+            var edges_length=edges.length
+            for(var i=1;i<=edges_length;i++){
+                try {
+                    edges.remove({id: edges._data[i].id});
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+        }
+        function initial_graph(){
+            draw()
+        }
+        function physics(){
+            var checkbox = document.getElementById("physics")
+            console.log(checkbox)
+            if(checkbox.checked==true){
+               network.setOptions({physics:{enabled:true}})
+            }else network.setOptions({physics:{enabled:false}})
+
+        }
+    </script>
+    
+</head>
+
+<body onload="draw();">
+    <nav  class="navbar navbar-light" style="background-color: #0984e3;">
+        <a class="navbar-brand" href="index.html" style="color: white">Home</a>
+        <a class="navbar-brand" href="Dijkstra.html" style="color: white">Dijkstra</a>
+        <a class="navbar-brand" href="nearest_neighbor.html" style="color: white">Nearest neighbor</a>
+    </nav>
+<table style="width:100%; margin-top: 2%">
+    <tr>
+        <td>
+            <h2 style="text-align: center">Node</h2>
+            <table width="100%" height="180px" style="border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px;">
+                <tr>
+                    <td></td>
+                    <td><label for="node-id">Id</label></td>
+                    <td><input id="node-id" type="text" value="11"class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="node-label">Label</label></td>
+                    <td><input id="node-label" type="text" value="L11"class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="starting-node">Starting node ID</label></td>
+                    <td><input id="starting-node" type="text" value="1"class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Action</td>
+                    <td>
+                        <button id="node-add" onclick="addNode();"class="btn btn-outline-primary">Add</button>
+                        <button id="node-update" onclick="updateNode();"class="btn btn-outline-primary">Update</button>
+                        <button id="node-remove" onclick="removeNode();"class="btn btn-outline-primary">Remove</button>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <h2 style="text-align: center">Edge</h2>
+            <table width="100%" height="180px" style="border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px;">
+                <tr>
+                    <td></td>
+                    <td><label for="edge-id">Id</label></td>
+                    <td><input id="edge-id" type="text" value="19" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%; height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="edge-from">From</label></td>
+                    <td><input id="edge-from" type="text" value="3"class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%; height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="edge-to">To</label></td>
+                    <td><input id="edge-to" type="text" value="4"class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%; height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="weight-to">Weight</label></td>
+                    <td><input id="weight-to" type="text" value="4"class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%; height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Action</td>
+                    <td>
+                        <button id="edge-add" onclick="addEdge();"class="btn btn-outline-primary">Add</button>
+                        <button id="edge-update" onclick="updateEdge();"class="btn btn-outline-primary">Update</button>
+                        <button id="edge-remove" onclick="removeEdge();"class="btn btn-outline-primary">Remove</button>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <h2 style="text-align: center">Compute</h2>
+            <table width="100%" height="180px" style="border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px;">
+                <tr>
+                <td>Kruskal</td>
+                <td><button id="kruskal" onclick="kruskal()"class="btn btn-outline-primary">Run</button></td>
+                </tr>
+                <tr>
+                    <td>Step by step   <input type="checkbox" id="check"  onclick="mycheck()"></td>
+                    <td>
+                    <button id="back" onclick="back()"style="display:none" class="btn btn-primary btn-sm">Back</button>
+                    <button id="next" onclick="next()" style="display:none"class="btn btn-primary btn-sm">Next</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Prim</td>
+                    <td><button id="prim" onclick="prim()"class="btn btn-outline-primary">Run</button></td>
+                    </tr>
+                    <tr>
+                        <td>Step by step   <input type="checkbox" id="checkPrim"  onclick="checkPrim()"></td>
+                        <td>
+                        <button id="backPrim" onclick="backPrim()"style="display:none" class="btn btn-primary btn-sm">Back</button>
+                        <button id="nextPrim" onclick="nextPrim()" style="display:none"class="btn btn-primary btn-sm">Next</button>
+                        </td>
+                    </tr>
+            </table>
+        </td>
+    <td>
+        <h2 style="text-align: center">Options</h2>
+        <table width="100%" height="180px" style="border-collapse:separate;
+        border:solid #74b9ff 1px;
+        border-radius:6px;
+        -moz-border-radius:6px;">
+            <tr>
+                <td><button id="reset_color" onclick="reset_color()"class="btn btn-outline-primary">Reset color</button></td>
+                <td><button id="new_empty_graph" onclick="new_empty_graph()"class="btn btn-outline-primary">New empty graph</button></td>
+                <td><button id="initial_graph" onclick="initial_graph()"class="btn btn-outline-primary">Initial graph</button></td>
+            </tr>
+            <tr>
+                <td>Physics   <input type="checkbox"  id="physics"  onclick="physics()" checked></td>
+            </tr>
+        </table>
+    </td>
+    </tr>
+
+</table>
+
+<table class="view" style="margin-top: 2%">
+    <colgroup>
+        <col width="15%">
+        <col width="15%">
+        <col width="70%">
+    </colgroup>
+    <tr>
+        <td>
+            <h2 style="text-align: center">Nodes</h2>
+            <pre style="height: 520px; width:100%;border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px" id="nodes"></pre>
+        </td>
+
+        <td>
+            <h2 style="text-align: center">Edges</h2>
+            <pre style="height: 520px; width:100%;border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px" id="edges"></pre>
+        </td>
+
+        <td>
+            <h2 style="text-align: center">Graph</h2>
+
+            <div style="height: 520px; width:100%;border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px" id="network"></div>
+        </td>
+    </tr>
+</table>
+<footer style="height:40px; background-color:#0984e3;margin-top: 1%">
+    <div><p style="color: white; text-align: center;" >Coded by Giovanni Pasqualino</p></div>
+</footer>
+</body>
+</html>

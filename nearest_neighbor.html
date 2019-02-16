@@ -1,0 +1,578 @@
+<!doctype html>
+<html>
+<head>
+    <title>Nearest neighbor</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style type="text/css">
+        html, body {
+            font: 11pt arial;
+        }
+
+        h1 {
+            font-size: 150%;
+            margin: 5px 0;
+        }
+
+        h2 {
+            font-size: 100%;
+            margin: 5px 0;
+        }
+
+        table.view {
+            width: 100%;
+        }
+
+        table td {
+            vertical-align: top;
+        }
+
+        table table {
+            background-color: #f5f5f5;
+            border: 1px solid #e5e5e5;
+        }
+
+        table table td {
+            vertical-align: middle;
+        }
+
+        input[type=text], pre {
+            border: 1px solid lightgray;
+        }
+
+        pre {
+            margin: 0;
+            padding: 5px;
+            font-size: 10pt;
+        }
+
+        #network {
+            width: 100%;
+            height: 400px;
+            border: 1px solid lightgray;
+        }
+    </style>
+
+    <script type="text/javascript" src="./dist/vis.js"></script>
+    <link href="./dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript">
+        var nodes, edges, network;
+
+        // convenience method to stringify a JSON object
+        function toJSON(obj) {
+            return JSON.stringify(obj, null, 4);
+        }
+
+        function addNode() {
+            try {
+                nodes.add({
+                    id: document.getElementById('node-id').value,
+                    label: document.getElementById('node-label').value
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        function updateNode() {
+            try {
+                nodes.update({
+                    id: document.getElementById('node-id').value,
+                    label: document.getElementById('node-label').value
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function removeNode() {
+            try {
+                nodes.remove({id: document.getElementById('node-id').value});
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        function addEdge() {
+            try {
+                edges.add({
+                    id: document.getElementById('edge-id').value,
+                    from: document.getElementById('edge-from').value,
+                    to: document.getElementById('edge-to').value,
+                    label: document.getElementById("weight-to").value,
+                    weight: document.getElementById("weight-to").value,
+                    width:3,
+                    color:{color:"#74b9ff"}
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function updateEdge() {
+            try {
+                edges.update({
+                    id: document.getElementById('edge-id').value,
+                    from: document.getElementById('edge-from').value,
+                    to: document.getElementById('edge-to').value,
+                    label: document.getElementById("weight-to").value,
+                    weight: document.getElementById("weight-to").value,
+                    color:{color:"#74b9ff"}
+                });
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function removeEdge() {
+            try {
+                edges.remove({id: document.getElementById('edge-id').value});
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+        function draw() {
+            // create an array with nodes
+            nodes = new vis.DataSet();
+            nodes.on('*', function () {
+                document.getElementById('nodes').innerHTML = JSON.stringify(nodes.get(), null, 4);
+            });
+            nodes.add([
+                {id: '1', label: 'A1'},
+                {id: '2', label: 'B2'},
+                {id: '3', label: 'C3'},
+                {id: '4', label: 'D4'},
+                {id: '5', label: 'E5'}
+            ]);
+
+            // create an array with edges
+            edges = new vis.DataSet();
+            edges.on('*', function () {
+                var edgesObj=edges.get()
+                var edgesToDysplay=[]
+                for(var i=0;i<edgesObj.length;i++){
+                    edgesToDysplay.push({"id":edgesObj[i].id,"from":from=edgesObj[i].from,"to":edgesObj[i].to,"weight":parseInt(edgesObj[i].weight,10)})
+                }
+                document.getElementById('edges').innerHTML = JSON.stringify(edgesToDysplay, null, 4);
+            });
+            edges.add([
+                {id: '1', from: '1', to: '2',label:"3",weight:"3",width:3,color:{color:"#74b9ff"}},
+                {id: '2', from: '1', to: '3',label:"5",weight:"5",width:3,color:{color:"#74b9ff"}},
+                {id: '3', from: '2', to: '4',label:"1",weight:"1",width:3,color:{color:"#74b9ff"}},
+                {id: '4', from: '2', to: '5',label:"4",weight:"4",width:3,color:{color:"#74b9ff"}},
+                {id: '5', from: '3', to: '4',label:"4",weight:"4",width:3,color:{color:"#74b9ff"}},
+                {id: '6', from: '1', to: '5',label:"2",weight:"2",width:3,color:{color:"#74b9ff"}},
+                {id: '7', from: '4', to: '5',label:"2",weight:"2",width:3,color:{color:"#74b9ff"}},
+                {id: '8', from: '5', to: '3',label:"4",weight:"4",width:3,color:{color:"#74b9ff"}},
+                {id: '9', from: '1', to: '4',label:"7",weight:"7",width:3,color:{color:"#74b9ff"}},
+                {id: '10', from: '2', to: '3',label:"2",weight:"2",width:3,color:{color:"#74b9ff"}}
+            ]);
+
+            // create a network
+            var container = document.getElementById('network');
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                    physics: {
+                        stabilization: true,
+                        solver: "forceAtlas2Based",
+                        enabled: true,
+                    },
+                    layout:{
+                        randomSeed: 6
+                    }
+            };
+            network = new vis.Network(container, data, options);
+            
+        }
+        //flag for step by step
+        var flag=0
+        var tempVertices=[]
+        var ed=[]
+        var edgesSort=[]
+        var edgesToColor=[]
+        function nearest_neighbor(){
+            tempVertices=[]
+            for(var ver in nodes._data){
+                tempVertices.push([nodes._data[ver].id,nodes._data[ver].id])
+            }
+            edgesSort =[]
+            for (var weight in edges._data){
+                edgesSort.push([weight,edges._data[weight].from,edges._data[weight].to,parseInt(edges._data[weight].weight,10)]);
+            }
+            edgesSort.sort(function(a, b){
+                return a[3]-b[3];
+            });
+            console.log(edgesSort)
+//reset color edges
+            if(flag==0){
+                for(var i =0;i<edgesSort.length;i++){
+                    try {
+                        edges.update({
+                            id: edgesSort[i][0],
+                            color:{color:"#74b9ff"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            }
+//Nearest neighbor   
+            var starting_node = document.getElementById("starting-node").value
+            var neigh=[]
+            var tVer = []
+            ed = [...edgesSort]
+            edgesToColor=[]
+            var total_weight=0
+            for(var k=0;k<edgesSort.length;k++) total_weight+=edgesSort[k][3]
+
+            for(var j=0;j<edgesSort.length;j++){
+                if(starting_node==edgesSort[j][1]){
+                    neigh.push(edgesSort[j],0)
+                    tVer.push(starting_node)
+                    index=ed.indexOf(edgesSort[j])
+                    edgesToColor.push(ed.splice(index,1)[0])
+                    break;
+                }
+                if(starting_node==edgesSort[j][2]){
+                    neigh.push(edgesSort[j],1)
+                    tVer.push(starting_node)
+                    index=ed.indexOf(edgesSort[j])
+                    edgesToColor.push(ed.splice(index,1)[0])
+                    break;
+                } 
+            }
+            var neighbor 
+            
+            if(neigh[1]==0) neighbor = neigh[0][2]
+            else neighbor=neigh[0][1]
+            
+            for(var i=0;i<tempVertices.length;i++){
+                
+                for(var j=0;j<ed.length;j++){
+                   
+                    if(neighbor==ed[j][1] && !tVer.includes(neighbor) && !tVer.includes(ed[j][2])){
+                        tVer.push(neighbor)
+                        neigh.push(ed[j],0)
+                        neighbor=ed[j][2];
+                        index=ed.indexOf(ed[j])
+                        edgesToColor.push(ed.splice(index,1)[0])
+                        break;
+                    } 
+                    else if(neighbor==ed[j][2] && !tVer.includes(neighbor) && !tVer.includes(ed[j][1])){
+                        tVer.push(neighbor)
+                        neigh.push(ed[j],1)
+                        neighbor=ed[j][1];
+                        index=ed.indexOf(ed[j])
+                        edgesToColor.push(ed.splice(index,1)[0])
+                        break;
+                    } 
+                }
+            }
+            for(var i=0;i<ed.length;i++){
+                if((ed[i][1]==tVer[0] && !tVer.includes(ed[i][2])) || (ed[i][2]==tVer[0] && !tVer.includes(ed[i][1]))){
+                    index=ed.indexOf(ed[i])
+                    edgesToColor.push(ed.splice(index,1)[0])
+                }
+            }
+            console.log(edgesToColor)
+            for(var k=0;k<ed.length;k++) total_weight-=ed[k][3]
+            document.getElementById("result").innerHTML=total_weight
+//end Nearest neighbor
+            if(flag==0){
+                for(var i =0;i<edgesToColor.length;i++){
+                    try {
+                        edges.update({
+                            id: edgesToColor[i][0],
+                            color:{color:"#e74c3c"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            }
+        }
+        var count=0
+        function mycheck(){
+            var checkbox= document.getElementById("check");
+            var back= document.getElementById("back");
+            var next= document.getElementById("next");
+            nearest_neighbor()
+                for(var i =0;i<edgesToColor.length;i++){
+                    try {
+                        edges.update({
+                            id: edgesToColor[i][0],
+                            color:{color:"#74b9ff"}
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            if(checkbox.checked==true){
+                flag=1
+                next.style.display="inline"
+                back.style.display="inline"
+            }
+            else {
+                flag =0
+                next.style.display="none"
+                back.style.display="none"
+            }
+            count=0
+        }
+        
+        function back(){
+            if(count>=1){
+                console.log("mst ",edgesToColor[count-1][0])
+                try{
+                    edges.update({
+                            id: edgesToColor[count-1][0],
+                            color:{color:"#74b9ff"}
+                        });
+                }catch (err) {
+                        alert(err);
+                }
+                
+                count-=1;
+            }
+        }
+        function next(){
+           // var size = Object.keys(nodes._data).length;
+           if(count<edgesToColor.length){   
+                try{
+                    edges.update({
+                            id: edgesToColor[count][0],
+                            color:{color:"#e74c3c"}
+                        });
+                }catch (err) {
+                        alert(err);
+                }
+            count+=1;
+           }
+            console.log(count)
+        }
+
+        function reset_color(){
+            var edges_length=edges.length
+            console.log(edges._data)
+            for(var i=1;i<=edges_length;i++){
+                try {
+                    edges.update({
+                        id: edges._data[i].id,
+                        color:{color:"#74b9ff"}
+                    });
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+            count =0
+        }
+        function new_empty_graph(){
+            var nodes_length=nodes.length
+            for(var i=1;i<=nodes_length;i++){
+                try {
+                    nodes.remove({id: nodes._data[i].id});
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+            var edges_length=edges.length
+            for(var i=1;i<=edges_length;i++){
+                try {
+                    edges.remove({id: edges._data[i].id});
+                }
+                catch (err) {
+                    alert(err);
+                }
+            }
+        }
+        function initial_graph(){
+            draw()
+        }
+        function physics(){
+            var checkbox = document.getElementById("physics")
+            console.log(checkbox)
+            if(checkbox.checked==true){
+               network.setOptions({physics:{enabled:true}})
+            }else network.setOptions({physics:{enabled:false}})
+
+        }
+    </script>
+    
+</head>
+
+<body onload="draw();">
+    <nav  class="navbar navbar-light" style="background-color: #0984e3;">
+        <a class="navbar-brand" href="index.html" style="color: white">Home</a>
+        <a class="navbar-brand" href="MST.html" style="color: white">Kruskal</a>
+        <a class="navbar-brand" href="MST.html" style="color: white">Prim</a>
+        <a class="navbar-brand" href="Dijkstra.html" style="color: white">Dijkstra</a>
+    </nav>
+<table style="width:100%; margin-top: 2%">
+    <tr>
+        <td>
+            <h2 style="text-align: center">Node</h2>
+            <table width="100%" height="180px" style="border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px;">
+                <tr>
+                    <td></td>
+                    <td><label for="node-id">Id</label></td>
+                    <td><input id="node-id" type="text" value="6" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="node-label">Label</label></td>
+                    <td><input id="node-label" type="text" value="F6" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="starting-node">Starting node ID</label></td>
+                    <td><input id="starting-node" type="text" value="1" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="result">TSP result</label></td>
+                    <td><p id="result" type="text" value=""></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Action</td>
+                    <td>
+                        <button id="node-add" onclick="addNode();" class="btn btn-outline-primary">Add</button>
+                        <button id="node-update" onclick="updateNode();" class="btn btn-outline-primary">Update</button>
+                        <button id="node-remove" onclick="removeNode();" class="btn btn-outline-primary">Remove</button>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <h2 style="text-align: center">Edge</h2>
+            <table width="100%" height="180px" style="border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px;">
+                <tr>
+                    <td></td>
+                    <td><label for="edge-id">Id</label></td>
+                    <td><input id="edge-id" type="text" value="11" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="edge-from">From</label></td>
+                    <td><input id="edge-from" type="text" value="3" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="edge-to">To</label></td>
+                    <td><input id="edge-to" type="text" value="4" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><label for="weight-to">Weight</label></td>
+                    <td><input id="weight-to" type="text" value="4" class="form-control mb-2 mr-sm-2 mb-sm-0" style="width:77%;height: 80%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Action</td>
+                    <td>
+                        <button id="edge-add" onclick="addEdge();" class="btn btn-outline-primary">Add</button>
+                        <button id="edge-update" onclick="updateEdge();" class="btn btn-outline-primary">Update</button>
+                        <button id="edge-remove" onclick="removeEdge();" class="btn btn-outline-primary">Remove</button>
+                    </td>
+                </tr>
+                </table>
+                    <td>
+                        <h2 style="text-align: center">Compute</h2>
+                        <table width="100%" height="180px" style="border-collapse:separate;
+                        border:solid #74b9ff 1px;
+                        border-radius:6px;
+                        -moz-border-radius:6px;">
+                            <tr>
+                            <td>Nearest neighbor</td>
+                            <td><button id="nearest_neighbor" onclick="nearest_neighbor()"class="btn btn-outline-primary">Run</button></td>
+                            </tr>
+                            <tr>
+                                <td>Step by step   <input type="checkbox" id="check"  onclick="mycheck()"></td>
+                                <td>
+                                <button id="back" onclick="back()"style="display:none" class="btn btn-primary btn-sm">Back</button>
+                                <button id="next" onclick="next()" style="display:none"class="btn btn-primary btn-sm">Next</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                <td>
+                    <h2 style="text-align: center">Options</h2>
+                    <table width="100%" height="180px" style="border-collapse:separate;
+                    border:solid #74b9ff 1px;
+                    border-radius:6px;
+                    -moz-border-radius:6px;">
+                        <tr>
+                            <td><button id="reset_color" onclick="reset_color()"class="btn btn-outline-primary">Reset color</button></td>
+                            <td><button id="new_empty_graph" onclick="new_empty_graph()"class="btn btn-outline-primary">New empty graph</button></td>
+                            <td><button id="initial_graph" onclick="initial_graph()"class="btn btn-outline-primary">Initial graph</button></td>
+                        </tr>
+                        <tr>
+                            <td>Physics   <input type="checkbox"  id="physics"  onclick="physics()" checked></td>
+                        </tr>
+                    </table>
+                </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+</table>
+
+<table class="view" style="margin-top: 2%">
+    <colgroup>
+        <col width="15%">
+        <col width="15%">
+        <col width="70%">
+    </colgroup>
+    <tr>
+        <td>
+            <h2 style="text-align: center">Nodes</h2>
+            <pre style="height: 520px;border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px" id="nodes"></pre>
+        </td>
+
+        <td>
+            <h2 style="text-align: center">Edges</h2>
+            <pre style="height: 520px;border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px" id="edges"></pre>
+        </td>
+
+        <td>
+            <h2 style="text-align: center">Graph</h2>
+
+            <div style="height: 520px; width:100%;border-collapse:separate;
+            border:solid #74b9ff 1px;
+            border-radius:6px;
+            -moz-border-radius:6px" id="network"></div>
+        </td>
+    </tr>
+</table>
+<footer style="height:40px; background-color:#0984e3;margin-top: 1%">
+    <div><p style="color: white; text-align: center;" >Coded by Giovanni Pasqualino</p></div>
+</footer>
+</body>
+</html>
