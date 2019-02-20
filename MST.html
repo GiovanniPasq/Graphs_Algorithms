@@ -183,7 +183,7 @@
                 {id: '15', from: '6', to: '9',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
                 {id: '16', from: '7', to: '8',label:"3",weight:"3",width:4,color:{color:"#74b9ff"}},
                 {id: '17', from: '8', to: '9',label:"2",weight:"2",width:4,color:{color:"#74b9ff"}},
-                {id: '18', from: '9', to: '10',label:"4",weight:"4",width:4,color:{color:"#74b9ff"}}
+                {id: '18', from: '9', to: '10',label:"1",weight:"1",width:4,color:{color:"#74b9ff"}}
             ]);
 
             // create a network
@@ -383,16 +383,6 @@
                     break;
                 }
             }
-            //shuffle vertices
-            for(var j=0;j<edgesSort.length-2;j++){
-                if(edgesSort[j][3]==edgesSort[j+1][3]){
-                    var t1 = edgesSort[j]
-                    edgesSort[j]=edgesSort[j+1]
-                    edgesSort[j+1]=t1
-                    
-                }
-            }
-            //end shuffle 
             //start algorithm
             for(var j=0;j<tempVertices.length-1;j++){
                 for(var i=0;i<edgesSort.length;i++){
@@ -698,7 +688,7 @@
     </tr>
 </table>
 <footer style="height:40px; background-color:#0984e3;margin-top: 1%">
-    <div><p style="color: white; text-align: center;" >Coded by Giovanni Pasqualino</p></div>
+    <div><p style="color: white; text-align: center;" ></p></div>
 </footer>
 </body>
 </html>
