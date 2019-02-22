@@ -3,14 +3,6 @@ body {
   color: #666666;
   font-family: 'BebasNeueRegular'; 
 }
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'BebasNeueRegular';
-  letter-spacing: 0.em;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 91px;
-}
 /* Sections Header
 --------------------------------*/
 .section-header .section-title {
@@ -24,12 +16,6 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
   font-weight: 700;
   margin-bottom: 5px;
-}
-
-.section-header .section-description {
-  text-align: center;
-  padding-bottom: 40px;
-  color: #999;
 }
 
 /* Team Section
@@ -60,25 +46,4 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 18px;
 }
 
-#team .member span {
-  font-style: italic;
-  display: block;
-  font-size: 13px;
-}
 
-#team .member .social {
-  margin-top: 15px;
-}
-
-#team .member .social a {
-  color: #b3b3b3;
-}
-
-#team .member .social a:hover {
-  color: #2dc9c1;
-}
-
-#team .member .social i {
-  font-size: 18px;
-  margin: 0 2px;
-}
