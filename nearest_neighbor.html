@@ -284,7 +284,6 @@
                     edgesToColor.push(ed.splice(index,1)[0])
                 }
             }
-            console.log(edgesToColor)
             for(var k=0;k<ed.length;k++) total_weight-=ed[k][3]
             document.getElementById("result").innerHTML=total_weight
 //end Nearest neighbor
@@ -334,7 +333,6 @@
         
         function back(){
             if(count>=1){
-                console.log("mst ",edgesToColor[count-1][0])
                 try{
                     edges.update({
                             id: edgesToColor[count-1][0],
@@ -348,7 +346,6 @@
             }
         }
         function next(){
-           // var size = Object.keys(nodes._data).length;
            if(count<edgesToColor.length){   
                 try{
                     edges.update({
@@ -360,12 +357,10 @@
                 }
             count+=1;
            }
-            console.log(count)
         }
 
         function reset_color(){
             var edges_length=edges.length
-            console.log(edges._data)
             for(var i=1;i<=edges_length;i++){
                 try {
                     edges.update({
@@ -404,7 +399,6 @@
         }
         function physics(){
             var checkbox = document.getElementById("physics")
-            console.log(checkbox)
             if(checkbox.checked==true){
                network.setOptions({physics:{enabled:true}})
             }else network.setOptions({physics:{enabled:false}})

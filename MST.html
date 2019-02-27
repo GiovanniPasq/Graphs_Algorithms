@@ -216,7 +216,6 @@
             for(var ver in nodes._data){
                 tempVertices.push([nodes._data[ver].id,nodes._data[ver].id])
             }
-            //console.log(tempVertices)
             mst = []
             edgesSort =[]
             for (var weight in edges._data){
@@ -261,7 +260,6 @@
                 }
             }
 //END UNION FIND
-            //console.log("MST: ",mst)
             if(flag==0){
                 for(var i =0;i<mst.length;i++){
                     try {
@@ -314,7 +312,6 @@
         
         function back(){
             if(count>=1){
-                console.log("mst ",mst[count-1][0])
                 try{
                     edges.update({
                             id: mst[count-1][0],
@@ -328,7 +325,6 @@
             }
         }
         function next(){
-           // var size = Object.keys(nodes._data).length;
            if(count<mst.length){   
                 try{
                     edges.update({
@@ -398,7 +394,6 @@
                     }
                 }
             }
-            //console.log(edgesSort,primNodes,mst)
             for(var i =0;i<mst.length;i++){
                     try {
                         edges.update({
@@ -449,7 +444,6 @@
         
         function backPrim(){
             if(count>=1){
-                console.log("mst ",mst[count-1][0])
                 try{
                     edges.update({
                             id: mst[count-1][0],
@@ -478,7 +472,6 @@
     }
     function reset_color(){
             var edges_length=edges.length
-            console.log(edges._data)
             for(var i=1;i<=edges_length;i++){
                 try {
                     edges.update({
@@ -517,7 +510,6 @@
         }
         function physics(){
             var checkbox = document.getElementById("physics")
-            console.log(checkbox)
             if(checkbox.checked==true){
                network.setOptions({physics:{enabled:true}})
             }else network.setOptions({physics:{enabled:false}})
@@ -592,7 +584,7 @@
     <tr>
         <td>
             <h2 style="text-align: center">Node</h2>
-            <table width="100%" height="180px" style="border-collapse:separate;
+            <table width="100%" height="200px" style="border-collapse:separate;
             border:solid #74b9ff 1px;
             border-radius:6px;
             -moz-border-radius:6px;">
@@ -624,7 +616,7 @@
         </td>
         <td>
             <h2 style="text-align: center">Edge</h2>
-            <table width="100%" height="180px" style="border-collapse:separate;
+            <table width="100%" height="200px" style="border-collapse:separate;
             border:solid #74b9ff 1px;
             border-radius:6px;
             -moz-border-radius:6px;">
@@ -661,7 +653,7 @@
         </td>
         <td>
             <h2 style="text-align: center">Compute</h2>
-            <table width="100%" height="180px" style="border-collapse:separate;
+            <table width="100%" height="200px" style="border-collapse:separate;
             border:solid #74b9ff 1px;
             border-radius:6px;
             -moz-border-radius:6px;">
@@ -691,7 +683,7 @@
         </td>
     <td>
         <h2 style="text-align: center">Options</h2>
-        <table width="100%" height="180px" style="border-collapse:separate;
+        <table width="100%" height="200px" style="border-collapse:separate;
         border:solid #74b9ff 1px;
         border-radius:6px;
         -moz-border-radius:6px;">
