@@ -410,6 +410,61 @@
             }else network.setOptions({physics:{enabled:false}})
 
         }
+        function download(data,filename,type){
+            var fileToSave = {"nodes":nodes._data, "edges":edges._data}
+            let file = new Blob([JSON.stringify(fileToSave,null,4)], {type:"application/json"});
+            let a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = "Graph";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
+        function readTextFile(input) {
+            new_empty_graph()
+            let fReader = new FileReader();
+            fReader.readAsDataURL(input.files[0]);  
+            fReader.onloadend = function(event) {
+                let graph = event.target.result;
+                graph = graph.replace("data:application/json;base64,", "");
+                graph = JSON.parse(atob(graph));
+                var sizeNodes = Object.keys(graph.nodes).length;
+                for(var i=1;i<=sizeNodes;i++){
+                    try {
+                    nodes.add({
+                        id: graph.nodes[i].id,
+                        label: graph.nodes[i].label
+                    });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+                var sizeEdges = Object.keys(graph.edges).length;
+                for(var i=1;i<=sizeEdges;i++){
+                    try {
+                        edges.add({
+                            id: graph.edges[i].id,
+                            from: graph.edges[i].from,
+                            to: graph.edges[i].to,
+                            label: graph.edges[i].label,
+                            weight: graph.edges[i].weight,
+                            width: graph.edges[i].width,
+                            color:graph.edges[i].color,
+                            arrows:graph.edges[i].arrows
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            }
+            
+        }
     </script>
     
 </head>
@@ -525,6 +580,16 @@
                             <td><button id="reset_color" onclick="reset_color()"class="btn btn-outline-primary">Reset color</button></td>
                             <td><button id="new_empty_graph" onclick="new_empty_graph()"class="btn btn-outline-primary">New empty graph</button></td>
                             <td><button id="initial_graph" onclick="initial_graph()"class="btn btn-outline-primary">Initial graph</button></td>
+                            <td><button id="download" onclick="download()"class="btn btn-outline-primary">Save graph</button></td>
+                            <td><input type="file" id="load-file" OnChange="readTextFile(this)"
+                                style="width: 0.1px;
+                                height: 0.1px;
+                                opacity: 0;
+                                overflow: hidden;
+                                position: absolute;
+                                z-index: -1;">
+                                <button id="load" OnClick="document.getElementById('load-file').click();"class="btn btn-outline-primary">Load graph</button>
+                            </td>
                         </tr>
                         <tr>
                             <td>Physics   <input type="checkbox"  id="physics"  onclick="physics()" checked></td>

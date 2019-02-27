@@ -6,6 +6,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="./dist/heap.js"></script>
     <style type="text/css">
         html, body {
             font: 11pt arial;
@@ -241,29 +242,27 @@
         }
 
         var queue = [...estimate_distance]
-        while(queue.length!=0){
-            queue.sort(function(a, b){
-            return b[1]-a[1];
-            });
-            var v=queue.pop()
-            //console.log("v ",v)
+        var heap = new BinaryHeap();
+        for(var i =0;i<queue.length;i++){
+            heap.insert(queue[i][1],queue[i][0])
+        }
+        while(heap.list.length!=0){
+            var temp = heap.extractMinimum()
+            var v=[temp.value,temp.key]
             for(var i=0;i<arc.length;i++){
                 if(v[0]==arc[i][1]){
-                    //console.log("arc ",arc[i])
                     var dv,du,index_dv;
                     du = v[1]
                     for(var j=0;j<estimate_distance.length;j++){    
                         if(arc[i][2]==estimate_distance[j][0]){
-                            //console.log("est",estimate_distance[j])
                             dv=estimate_distance[j][1]
                             index_dv=j
                             break;
                         }
                     }
-                    //console.log("dv",dv,"du",du,"weight",arc[i][3])
                     if(dv>du+arc[i][3]){
-                        //console.log("estimate distance",estimate_distance[index_dv])
                         estimate_distance[index_dv][1]=du+arc[i][3]
+                        heap.decreaseKey(du+arc[i][3],estimate_distance[index_dv][0])
                         for(var k=0;k<pred.length;k++){
                             if(arc[i][2]==pred[k][0]) pred[k][1]=v[0]
                         }
@@ -272,7 +271,7 @@
             }
         }
         edge_to_color=[]
-        console.log("pred",pred,"arc",arc,"final distance",estimate_distance)
+        console.log("pred",pred,"final distance",estimate_distance)
         for(var i=0;i<pred.length;i++){
             for(var j=0;j<arc.length;j++){
                 if(pred[i][1]==arc[j][1] && pred[i][0]==arc[j][2]){
@@ -324,7 +323,6 @@
         }
         
         function back(){
-            console.log(count)
             if(count>=1){
                 try{
                     edges.update({
@@ -339,8 +337,6 @@
             }
         }
         function next(){
-           // var size = Object.keys(nodes._data).length;
-           console.log(count)
             if(count<edge_to_color.length){   
                 try{
                     edges.update({
@@ -356,7 +352,6 @@
         }
         function reset_color(){
             var edges_length=edges.length
-            console.log(edges._data)
             for(var i=1;i<=edges_length;i++){
                 try {
                     edges.update({
@@ -395,11 +390,64 @@
         }
         function physics(){
             var checkbox = document.getElementById("physics")
-            console.log(checkbox)
             if(checkbox.checked==true){
                network.setOptions({physics:{enabled:true}})
             }else network.setOptions({physics:{enabled:false}})
-
+        }
+        function download(data,filename,type){
+            var fileToSave = {"nodes":nodes._data, "edges":edges._data}
+            let file = new Blob([JSON.stringify(fileToSave,null,4)], {type:"application/json"});
+            let a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = "Graph";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
+        function readTextFile(input) {
+            new_empty_graph()
+            let fReader = new FileReader();
+            fReader.readAsDataURL(input.files[0]);  
+            fReader.onloadend = function(event) {
+                let graph = event.target.result;
+                graph = graph.replace("data:application/json;base64,", "");
+                graph = JSON.parse(atob(graph));
+                var sizeNodes = Object.keys(graph.nodes).length;
+                for(var i=1;i<=sizeNodes;i++){
+                    try {
+                    nodes.add({
+                        id: graph.nodes[i].id,
+                        label: graph.nodes[i].label
+                    });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+                var sizeEdges = Object.keys(graph.edges).length;
+                for(var i=1;i<=sizeEdges;i++){
+                    try {
+                        edges.add({
+                            id: graph.edges[i].id,
+                            from: graph.edges[i].from,
+                            to: graph.edges[i].to,
+                            label: graph.edges[i].label,
+                            weight: graph.edges[i].weight,
+                            width: graph.edges[i].width,
+                            color:graph.edges[i].color,
+                            arrows:graph.edges[i].arrows
+                        });
+                    }
+                    catch (err) {
+                        alert(err);
+                    }
+                }
+            }
+            
         }
     </script>
 </head>
@@ -514,6 +562,16 @@
                     <td><button id="reset_color" onclick="reset_color()"class="btn btn-outline-primary">Reset color</button></td>
                     <td><button id="new_empty_graph" onclick="new_empty_graph()"class="btn btn-outline-primary">New empty graph</button></td>
                     <td><button id="initial_graph" onclick="initial_graph()"class="btn btn-outline-primary">Initial graph</button></td>
+                    <td><button id="download" onclick="download()"class="btn btn-outline-primary">Save graph</button></td>
+                    <td><input type="file" id="load-file" OnChange="readTextFile(this)"
+                         style="width: 0.1px;
+                         height: 0.1px;
+                         opacity: 0;
+                         overflow: hidden;
+                         position: absolute;
+                         z-index: -1;">
+                        <button id="load" OnClick="document.getElementById('load-file').click();"class="btn btn-outline-primary">Load graph</button>
+                    </td>
                 </tr>
                 <tr>
                     <td>Physics   <input type="checkbox"  id="physics"  onclick="physics()" checked></td>
